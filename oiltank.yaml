@@ -1,0 +1,71 @@
+esphome:
+  name: oiltank
+
+esp8266:
+  board: nodemcuv2
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: "34thm6"
+
+ota:
+  password: "34thm6"
+
+wifi:
+  ssid: "NR12"
+  password: "18ad800569"
+  manual_ip:
+    static_ip: 10.1.0.190
+    gateway: 10.1.0.254
+    subnet: 255.255.255.0
+
+# https://www.rogerfrost.com/oil-tank-level-sensor-vl53l0x-time-of-flight-sensor/
+
+i2c:
+  sda: D2 #GPI04 orange or green # SDA connects I2C SDA (data) pin 4 D2
+  scl: D1 #GPI05 yellow or blue  # SCL connects I2C SCL (clock) pin 5 D1
+# scan: true
+
+# Comments:
+# sda pinID: the pin for the I²C bus data line. Board default GPIO21 - ESP32 / GPIO4 - ESP8266.
+# scl pinID: the pin for the I²C bus clock line. Board default GPIO22 - ESP32 / GPIO5 - ESP8266.
+# scan: false # would stop ESPHome searching the I²C address space on startup
+
+sensor:
+  - platform: vl53l0x
+    name: "Oil Level"
+    address: 0x29
+    long_range: true
+    update_interval: 30s
+    accuracy_decimals: 0
+    unit_of_measurement: "L"
+    device_class: 'volume'
+    state_class: total
+    filters:
+    - lambda: return (1.25 - x) * 1176.5;
+    - sliding_window_moving_average:
+        window_size: 60
+        send_every: 10
+
+# this optional section controls the built-in LED light on the nodemcu 8266.
+# Look up the LED GPIO for your ESP dev board and adjust below. On my board Home Assistant reads an on light as off.
+output:
+  - platform: gpio
+    pin: GPIO2
+    id: gpio_2
+    inverted: true
+
+light:
+  - platform: binary
+    output: gpio_2
+    name: oiltank light
+
+# see the para below for how I improved the sensor section for my tank
+
+# battery power configuration entry - read more at ESPHome Deep sleep
+# deep_sleep:
+#   run_duration: 10s
+#   sleep_duration: 60min
