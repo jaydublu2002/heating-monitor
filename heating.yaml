@@ -9,19 +9,19 @@ logger:
 
 # Enable Home Assistant API
 api:
-  password: "34thm6"
+  password: !secret api_password
 
 ota:
-  password: "34thm6"
+  password: !secret ota_password
 
 wifi:
-  ssid: "NR12"
-  password: "18ad800569"
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Heating Fallback Hotspot"
-    password: "RZDNmxRasl8k"
+    password: !secret ap_password
 
 captive_portal:
 
